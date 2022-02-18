@@ -55,11 +55,13 @@ export class ArtificialIntelligenceController
 		suspiciousMetricSuggestionLinks: MetricSuggestionParameters[][]
 		unsuspiciousMetrics: string[][]
 		riskProfile: RiskProfile[]
+		overallSuspiciousMetricSuggestionLinks: string[]
 	} = {
 		analyzedProgrammingLanguages: undefined,
 		suspiciousMetricSuggestionLinks: [],
 		unsuspiciousMetrics: [],
-		riskProfile: []
+		riskProfile: [],
+		overallSuspiciousMetricSuggestionLinks: []
 	}
 
 	private debounceCalculation: () => void
@@ -146,11 +148,42 @@ export class ArtificialIntelligenceController
 				this.calculateRiskProfile(this.fileState, language, "mcc")
 				this.calculateSuspiciousMetrics(this.fileState, language)
 			}
+			this.calculateOverallRiskProfile()
 		}
 	}
 
 	private clearRiskProfile() {
 		this._viewModel.riskProfile = []
+	}
+
+	private calculateOverallRiskProfile() {
+		let totalLowRisk = 0
+		let totalModerateRisk = 0
+		let totalHighRisk = 0
+		let totalVeryHighRisk = 0
+
+		for (const riskProfil of this._viewModel.riskProfile) {
+			totalLowRisk += riskProfil.lowRisk
+			totalModerateRisk += riskProfil.moderateRisk
+			totalHighRisk += riskProfil.highRisk
+			totalVeryHighRisk += riskProfil.veryHighRisk
+		}
+
+		const numberOfRiskProfiles = this._viewModel.riskProfile.length
+
+		const [lowRisk, moderateRisk, highRisk, veryHighRisk] = percentRound([
+			totalLowRisk / numberOfRiskProfiles,
+			totalModerateRisk / numberOfRiskProfiles,
+			totalHighRisk / numberOfRiskProfiles,
+			totalVeryHighRisk / numberOfRiskProfiles
+		])
+
+		this._viewModel.riskProfile.push({
+			lowRisk,
+			moderateRisk,
+			highRisk,
+			veryHighRisk
+		})
 	}
 
 	private calculateRiskProfile(fileState: FileState, programmingLanguage, metricName) {
@@ -226,6 +259,7 @@ export class ArtificialIntelligenceController
 			if (outlierThreshold > 0) {
 				noticeableMetricSuggestionLinks.get(metricName).isOutlier = true
 			}
+			this.addOverallSuspiciousMetric(metricName)
 		}
 
 		this._viewModel.suspiciousMetricSuggestionLinks.push(
@@ -239,6 +273,11 @@ export class ArtificialIntelligenceController
 		if (a.isOutlier && !b.isOutlier) return -1
 		if (!a.isOutlier && b.isOutlier) return 1
 		return 0
+	}
+
+	private addOverallSuspiciousMetric(metric: string) {
+		if (this._viewModel.overallSuspiciousMetricSuggestionLinks.includes(metric)) return
+		this._viewModel.overallSuspiciousMetricSuggestionLinks.push(metric)
 	}
 
 	private findGoodAndBadMetrics(metricValues, programmingLanguage): MetricAssessmentResults {

@@ -10,12 +10,12 @@
 				class="ai-badge"
 				ng-show="
 					!hideBadge &&
-					($ctrl._viewModel.riskProfile[$index] !== undefined ||
-						$ctrl._viewModel.suspiciousMetricSuggestionLinks.length ||
+					($ctrl._viewModel.riskProfile !== undefined ||
+						$ctrl._viewModel.overallSuspiciousMetricSuggestionLinks.length ||
 						$ctrl._viewModel.unsuspiciousMetrics.length)
 				"
 			>
-				{{ $ctrl._viewModel.suspiciousMetricSuggestionLinks.length }}
+				{{ $ctrl._viewModel.overallSuspiciousMetricSuggestionLinks.length }}
 			</span>
 		</md-button>
 
@@ -67,64 +67,61 @@
 		</md-button>
 
 		<md-menu-content class="ai-drop-down summary">
-			<div ng-repeat="$language in $ctrl._viewModel.analyzedProgrammingLanguages">
+			<div ng-repeat="riskProfile in $ctrl._viewModel.riskProfile">
 				<md-menu-item class="title">
-					<p>Risk Profile for {{ $language }} code</p>
+					<p ng-show="$ctrl._viewModel.analyzedProgrammingLanguages[$index]">
+						Risk Profile for {{ $ctrl._viewModel.analyzedProgrammingLanguages[$index] }} code
+					</p>
+					<p ng-show="!$ctrl._viewModel.analyzedProgrammingLanguages[$index]">Risk Profile for overall code</p>
 					<p>Calculations are always based on mcc (cyclomatic complexity)</p>
 				</md-menu-item>
 
 				<md-menu-item class="suspicious-metrics-summary">
-					<ul ng-show="$ctrl._viewModel.riskProfile[$index] !== undefined">
-						<li>{{ $ctrl._viewModel.riskProfile[$index].lowRisk }}% of overall code is in files with low complexity</li>
-						<li>
-							{{ $ctrl._viewModel.riskProfile[$index].moderateRisk }}% of overall code is in files with moderate complexity
-						</li>
-						<li>{{ $ctrl._viewModel.riskProfile[$index].highRisk }}% of overall code is in files with high complexity</li>
-						<li>
-							{{ $ctrl._viewModel.riskProfile[$index].veryHighRisk }}% of overall code is in files with extreme complexity
-						</li>
+					<ul ng-show="riskProfile !== undefined">
+						<li>{{ riskProfile.lowRisk }}% of overall code is in files with low complexity</li>
+						<li>{{ riskProfile.moderateRisk }}% of overall code is in files with moderate complexity</li>
+						<li>{{ riskProfile.highRisk }}% of overall code is in files with high complexity</li>
+						<li>{{ riskProfile.veryHighRisk }}% of overall code is in files with extreme complexity</li>
 					</ul>
-					<span ng-show="$ctrl._viewModel.riskProfile[$index] === undefined">
-						Could not calculate Risk Profile. Metrics rloc and mcc not available.
-					</span>
+					<span ng-show="riskProfile === undefined"> Could not calculate Risk Profile. Metrics rloc and mcc not available. </span>
 				</md-menu-item>
 
-				<md-menu-item class="risk-profiles" ng-show="$ctrl._viewModel.riskProfile[$index] !== undefined">
+				<md-menu-item class="risk-profiles" ng-show="riskProfile !== undefined">
 					<div
-						ng-if="$ctrl._viewModel.riskProfile[$index].lowRisk > 0"
-						title="Low Risk ({{ $ctrl._viewModel.riskProfile[$index].lowRisk }}% of code)"
+						ng-if="riskProfile.lowRisk > 0"
+						title="Low Risk ({{ riskProfile.lowRisk }}% of code)"
 						class="risk-profile low-risk"
-						style="width:{{ $ctrl._viewModel.riskProfile[$index].lowRisk }}%;
-					{{ $ctrl._viewModel.riskProfile[$index].lowRisk < 5 ? 'color:rgba(0,0,0,0)' : '' }}"
+						style="width:{{ riskProfile.lowRisk }}%;
+					{{ riskProfile.lowRisk < 5 ? 'color:rgba(0,0,0,0)' : '' }}"
 					>
-						{{ $ctrl._viewModel.riskProfile[$index].lowRisk }}%
+						{{ riskProfile.lowRisk }}%
 					</div>
 					<div
-						ng-if="$ctrl._viewModel.riskProfile[$index].moderateRisk > 0"
-						title="Moderate Risk ({{ $ctrl._viewModel.riskProfile[$index].moderateRisk }}% of code)"
+						ng-if="riskProfile.moderateRisk > 0"
+						title="Moderate Risk ({{ riskProfile.moderateRisk }}% of code)"
 						class="risk-profile moderate-risk"
-						style="width:{{ $ctrl._viewModel.riskProfile[$index].moderateRisk }}%;
-					{{ $ctrl._viewModel.riskProfile[$index].moderateRisk < 5 ? 'color:rgba(0,0,0,0)' : '' }}"
+						style="width:{{ riskProfile.moderateRisk }}%;
+					{{ riskProfile.moderateRisk < 5 ? 'color:rgba(0,0,0,0)' : '' }}"
 					>
-						{{ $ctrl._viewModel.riskProfile[$index].moderateRisk }}%
+						{{ riskProfile.moderateRisk }}%
 					</div>
 					<div
-						ng-if="$ctrl._viewModel.riskProfile[$index].highRisk > 0"
-						title="High Risk ({{ $ctrl._viewModel.riskProfile[$index].highRisk }}% of code)"
+						ng-if="riskProfile.highRisk > 0"
+						title="High Risk ({{ riskProfile.highRisk }}% of code)"
 						class="risk-profile high-risk"
-						style="width:{{ $ctrl._viewModel.riskProfile[$index].highRisk }}%;
-					{{ $ctrl._viewModel.riskProfile[$index].highRisk < 5 ? 'color:rgba(0,0,0,0)' : '' }}"
+						style="width:{{ riskProfile.highRisk }}%;
+					{{ riskProfile.highRisk < 5 ? 'color:rgba(0,0,0,0)' : '' }}"
 					>
-						{{ $ctrl._viewModel.riskProfile[$index].highRisk }}%
+						{{ riskProfile.highRisk }}%
 					</div>
 					<div
-						ng-if="$ctrl._viewModel.riskProfile[$index].veryHighRisk > 0"
-						title="Very High Risk ({{ $ctrl._viewModel.riskProfile[$index].veryHighRisk }}% of code)"
+						ng-if="riskProfile.veryHighRisk > 0"
+						title="Very High Risk ({{ riskProfile.veryHighRisk }}% of code)"
 						class="risk-profile very-high-risk"
-						style="width:{{ $ctrl._viewModel.riskProfile[$index].veryHighRisk }}%;
-					{{ $ctrl._viewModel.riskProfile[$index].veryHighRisk < 5 ? 'color:rgba(0,0,0,0)' : '' }}"
+						style="width:{{ riskProfile.veryHighRisk }}%;
+					{{ riskProfile.veryHighRisk < 5 ? 'color:rgba(0,0,0,0)' : '' }}"
 					>
-						{{ $ctrl._viewModel.riskProfile[$index].veryHighRisk }}%
+						{{ riskProfile.veryHighRisk }}%
 					</div>
 				</md-menu-item>
 			</div>
