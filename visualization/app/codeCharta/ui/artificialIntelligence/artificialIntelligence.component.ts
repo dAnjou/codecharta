@@ -40,29 +40,26 @@ interface MetricSuggestionParameters {
 	isOutlier?: boolean
 }
 
+interface RiskProfile {
+	lowRisk: number
+	moderateRisk: number
+	highRisk: number
+	veryHighRisk: number
+}
+
 export class ArtificialIntelligenceController
 	implements FilesSelectionSubscriber, BlacklistSubscriber, ExperimentalFeaturesEnabledSubscriber
 {
 	private _viewModel: {
-		analyzedProgrammingLanguage: string
-		suspiciousMetricSuggestionLinks: MetricSuggestionParameters[]
-		unsuspiciousMetrics: string[]
-		riskProfile: {
-			lowRisk: number
-			moderateRisk: number
-			highRisk: number
-			veryHighRisk: number
-		}
+		analyzedProgrammingLanguages: string[]
+		suspiciousMetricSuggestionLinks: MetricSuggestionParameters[][]
+		unsuspiciousMetrics: string[][]
+		riskProfile: RiskProfile[]
 	} = {
-		analyzedProgrammingLanguage: undefined,
+		analyzedProgrammingLanguages: undefined,
 		suspiciousMetricSuggestionLinks: [],
 		unsuspiciousMetrics: [],
-		riskProfile: {
-			lowRisk: 0,
-			moderateRisk: 0,
-			highRisk: 0,
-			veryHighRisk: 0
-		}
+		riskProfile: []
 	}
 
 	private debounceCalculation: () => void
@@ -86,8 +83,8 @@ export class ArtificialIntelligenceController
 		}
 	}
 
-	applySuspiciousMetric(metric: MetricSuggestionParameters, isOutlier: boolean) {
-		if (this._viewModel.suspiciousMetricSuggestionLinks.includes(metric)) {
+	applySuspiciousMetric(metric: MetricSuggestionParameters, programmingLanguageIndex: number, isOutlier: boolean) {
+		if (this._viewModel.suspiciousMetricSuggestionLinks[programmingLanguageIndex].includes(metric)) {
 			const mapColors = { ...this.storeService.getState().appSettings.mapColors }
 			const colorRange: ColorRange = {
 				from: metric.from,
@@ -139,19 +136,21 @@ export class ArtificialIntelligenceController
 			return
 		}
 
-		const mainProgrammingLanguage = this.getMostFrequentLanguage(this.fileState.file.map)
-		this._viewModel.analyzedProgrammingLanguage = mainProgrammingLanguage
+		const programmingLanguages = this.getProgrammingLanguages(this.fileState.file.map)
+		this._viewModel.analyzedProgrammingLanguages = programmingLanguages
 
 		this.clearRiskProfile()
 
-		if (mainProgrammingLanguage !== undefined) {
-			this.calculateRiskProfile(this.fileState, mainProgrammingLanguage, "mcc")
-			this.calculateSuspiciousMetrics(this.fileState, mainProgrammingLanguage)
+		if (programmingLanguages.length > 0) {
+			for (const language of programmingLanguages) {
+				this.calculateRiskProfile(this.fileState, language, "mcc")
+				this.calculateSuspiciousMetrics(this.fileState, language)
+			}
 		}
 	}
 
 	private clearRiskProfile() {
-		this._viewModel.riskProfile = undefined
+		this._viewModel.riskProfile = []
 	}
 
 	private calculateRiskProfile(fileState: FileState, programmingLanguage, metricName) {
@@ -204,12 +203,12 @@ export class ArtificialIntelligenceController
 			numberOfRlocVeryHighRisk
 		])
 
-		this._viewModel.riskProfile = {
+		this._viewModel.riskProfile.push({
 			lowRisk,
 			moderateRisk,
 			highRisk,
 			veryHighRisk
-		}
+		})
 	}
 
 	private calculateSuspiciousMetrics(fileState: FileState, programmingLanguage) {
@@ -229,10 +228,11 @@ export class ArtificialIntelligenceController
 			}
 		}
 
-		this._viewModel.suspiciousMetricSuggestionLinks = [...noticeableMetricSuggestionLinks.values()].sort(
-			this.compareSuspiciousMetricSuggestionLinks
+		this._viewModel.suspiciousMetricSuggestionLinks.push(
+			[...noticeableMetricSuggestionLinks.values()].sort(this.compareSuspiciousMetricSuggestionLinks)
 		)
-		this._viewModel.unsuspiciousMetrics = metricAssessmentResults.unsuspiciousMetrics
+
+		this._viewModel.unsuspiciousMetrics.push(metricAssessmentResults.unsuspiciousMetrics)
 	}
 
 	private compareSuspiciousMetricSuggestionLinks(a: MetricSuggestionParameters, b: MetricSuggestionParameters): number {
@@ -308,8 +308,8 @@ export class ArtificialIntelligenceController
 		return fileName.includes(".") ? fileName.slice(fileName.lastIndexOf(".") + 1) : undefined
 	}
 
-	private getMostFrequentLanguage(map: CodeMapNode) {
-		const numberOfFilesPerLanguage = new Map()
+	private getProgrammingLanguages(map: CodeMapNode) {
+		const languages: string[] = []
 
 		for (const { data } of hierarchy(map)) {
 			if (!data.name.includes(".")) {
@@ -318,24 +318,16 @@ export class ArtificialIntelligenceController
 
 			if (data.type === NodeType.FILE) {
 				const fileExtension = data.name.slice(data.name.lastIndexOf(".") + 1)
-				const filesPerLanguage = numberOfFilesPerLanguage.get(fileExtension) ?? 0
-				numberOfFilesPerLanguage.set(fileExtension, filesPerLanguage + 1)
+				languages.push(fileExtension)
 			}
 		}
 
-		if (numberOfFilesPerLanguage.size === 0) {
+		if (languages.length === 0) {
 			return
 		}
+		const uniqueChars = [...new Set(languages)]
 
-		let language = ""
-		let max = -1
-		for (const [key, filesPerLanguage] of numberOfFilesPerLanguage) {
-			if (max < filesPerLanguage) {
-				max = filesPerLanguage
-				language = key
-			}
-		}
-		return language
+		return uniqueChars
 	}
 
 	private getAssociatedMetricThresholds(programmingLanguage) {
