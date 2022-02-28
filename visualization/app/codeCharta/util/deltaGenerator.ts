@@ -29,14 +29,33 @@ export class DeltaGenerator {
 	private static getHashMapWithAllNodes(referenceMap: CodeMapNode, comparisonMap: CodeMapNode) {
 		const hashMapWithAllNodes: Map<string, CodeMapNode> = new Map()
 		const referenceHashMap: Map<string, CodeMapNode> = new Map()
+		const comparrisonHashMap: Map<string, CodeMapNode> = new Map()
 
 		// Get one side of the nodes
 		for (const { data } of hierarchy(referenceMap)) {
 			referenceHashMap.set(data.path, data)
 		}
 
+		for (const { data } of hierarchy(comparisonMap)) {
+			comparrisonHashMap.set(data.path, data)
+		}
+
+		const folderEqualChildren = new Map<string, number>()
+
 		// Combine both sides of the nodes
-		for (const { data: comparisonNode } of hierarchy(comparisonMap)) {
+		for (const { data: comparisonNode, parent: comparisonParent } of hierarchy(comparisonMap)) {
+			if (comparisonNode.type === "Folder") {
+				folderEqualChildren.set(comparisonNode.path, 0)
+			}
+
+			if (comparisonNode.type === "File" && folderEqualChildren.has(comparisonParent.data.path)) {
+				let equalAmount = folderEqualChildren.get(comparisonParent.data.path)
+
+				if (referenceHashMap.has(comparisonNode.path)) {
+					folderEqualChildren.set(comparisonParent.data.path, ++equalAmount)
+				}
+			}
+
 			const referenceNode = referenceHashMap.get(comparisonNode.path)
 			if (referenceNode) {
 				if (referenceNode.children || comparisonNode.children) {
@@ -60,6 +79,27 @@ export class DeltaGenerator {
 		}
 
 		// Add missing nodes
+		this.addNewBuildings(referenceHashMap, hashMapWithAllNodes)
+
+		for (const [key, value] of hashMapWithAllNodes) {
+			if (folderEqualChildren.has(key)) {
+				const equalNodes = folderEqualChildren.get(key)
+
+				value.deltas.equalNodes = equalNodes
+
+				value.deltas.newNodes = referenceHashMap.has(key)
+					? referenceHashMap.get(key).children.length - equalNodes
+					: comparrisonHashMap.get(key)?.children.length
+
+				value.deltas.deletedNotes = comparrisonHashMap.has(key)
+					? Math.max(comparrisonHashMap.get(key)?.children.length - equalNodes, 0)
+					: 0
+			}
+		}
+		return hashMapWithAllNodes
+	}
+
+	private static addNewBuildings(referenceHashMap: Map<string, CodeMapNode>, hashMapWithAllNodes: Map<string, CodeMapNode>) {
 		for (const node of referenceHashMap.values()) {
 			if (node.children) {
 				node.children = []
@@ -70,8 +110,6 @@ export class DeltaGenerator {
 			}
 			hashMapWithAllNodes.set(node.path, node)
 		}
-
-		return hashMapWithAllNodes
 	}
 
 	private static getDeltaAttributeList(referenceAttribute: KeyValuePair, comparisonAttribute: KeyValuePair) {

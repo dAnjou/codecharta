@@ -1,4 +1,4 @@
-import { Component, Inject, Input } from "@angular/core"
+import { Component, Inject, Input, OnInit } from "@angular/core"
 import { Observable } from "rxjs"
 
 import { Store } from "../../../../state/angular-redux/store"
@@ -9,7 +9,7 @@ import { fileCountDescriptionSelector } from "./fileCountDescription.selector"
 	selector: "cc-node-path",
 	template: require("./nodePath.component.html")
 })
-export class NodePathComponent {
+export class NodePathComponent implements OnInit {
 	@Input() node?: Pick<CodeMapNode, "path" | "children">
 	fileCountDescription$: Observable<string | undefined>
 
