@@ -1746,6 +1746,7 @@ export const STATE: State = {
 		dynamicMargin: true,
 		isWhiteBackground: false,
 		isColorMetricLinkedToHeightMetric: false,
+		enableFloorLabels: true,
 		mapColors: {
 			positive: "#69AE40",
 			neutral: "#ddcc00",
@@ -1799,6 +1800,7 @@ export const DEFAULT_STATE: State = {
 		isEdgeMetricVisible: true,
 		isWhiteBackground: false,
 		isColorMetricLinkedToHeightMetric: false,
+		enableFloorLabels: true,
 		mapColors: {
 			base: "#666666",
 			flat: "#AAAAAA",

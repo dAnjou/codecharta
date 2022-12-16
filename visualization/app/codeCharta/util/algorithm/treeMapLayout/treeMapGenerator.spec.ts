@@ -1,5 +1,4 @@
 import { NodeMetricData, State, CodeMapNode, Node, NameDataPair } from "../../../codeCharta.model"
-
 import {
 	METRIC_DATA,
 	TEST_FILE_WITH_PATHS,
@@ -84,7 +83,7 @@ describe("treeMapGenerator", () => {
 		})
 
 		it("only root node", () => {
-			map = klona(FIXED_FOLDERS_NESTED_MIXED_WITH_A_FILE_MAP_FILE.map)
+			map.children = []
 
 			const nodes: Node[] = SquarifiedLayoutGenerator.createTreemapNodes(map, state, metricData, isDeltaState)
 
@@ -102,6 +101,24 @@ describe("treeMapGenerator", () => {
 		it("root node with two direct children and some grand children", () => {
 			const nodes: Node[] = SquarifiedLayoutGenerator.createTreemapNodes(map, state, metricData, isDeltaState)
 
+			expect(nodes).toMatchSnapshot()
+		})
+
+		it("should build the tree map with valid coordinates using the fixed folder structure", () => {
+			const nodes = SquarifiedLayoutGenerator.createTreemapNodes(fileWithFixedFolders.nodes[0], state, metricData, isDeltaState)
+
+			expect(nodes).toMatchSnapshot()
+		})
+
+		it("should disable floor labels if option is toggled and change size", () => {
+			const nodesWithFloorLabels: Node[] = SquarifiedLayoutGenerator.createTreemapNodes(map, state, metricData, isDeltaState)
+			state.appSettings.enableFloorLabels = false
+			const nodes: Node[] = SquarifiedLayoutGenerator.createTreemapNodes(map, state, metricData, isDeltaState)
+
+			for (const [index, nodesWithFloorLabel] of nodesWithFloorLabels.entries()) {
+				expect(nodesWithFloorLabel.name).toEqual(nodes[index].name)
+				expect(nodesWithFloorLabel.width).not.toEqual(nodes[index].width)
+			}
 			expect(nodes).toMatchSnapshot()
 		})
 	})
@@ -125,12 +142,12 @@ describe("treeMapGenerator", () => {
 
 			const nodes: Node[] = SquarifiedLayoutGenerator.createTreemapNodes(map, state, metricData, isDeltaState)
 
-			expect(nodes[1].name).toBe("big leaf")
-			expect(nodes[1].width).toBeGreaterThan(0)
-			expect(nodes[1].length).toBeGreaterThan(0)
+			expect(nodes[2].name).toBe("Parent Leaf")
+			expect(nodes[2].width).toBeGreaterThan(0)
+			expect(nodes[2].length).toBeGreaterThan(0)
 		})
 
-		it("attribute exists, but is not chosen, no children", () => {
+		it("attribute exists, no children", () => {
 			map.children = []
 			map.attributes = { a: 100 }
 
@@ -139,10 +156,11 @@ describe("treeMapGenerator", () => {
 			expect(nodes[0].attributes["a"]).toBe(100)
 		})
 
-		it("attribute do not exists, no children", () => {
+		it("attribute does not exists, no children", () => {
 			map.children = []
 
 			const nodes: Node[] = SquarifiedLayoutGenerator.createTreemapNodes(map, state, metricData, isDeltaState)
+
 			expect(nodes[0].attributes["b"]).toBe(undefined)
 		})
 
@@ -155,10 +173,11 @@ describe("treeMapGenerator", () => {
 			]
 
 			const nodes: Node[] = SquarifiedLayoutGenerator.createTreemapNodes(map, state, metricData, isDeltaState)
+
 			expect(nodes[0].attributes["b"]).toBe(undefined)
 		})
 
-		it(" area should be zero if metric does not exist", () => {
+		it("area should be zero if metric does not exist", () => {
 			state.dynamicSettings.areaMetric = "unknown"
 			state.dynamicSettings.heightMetric = "unknown"
 			state.fileSettings.edges = VALID_EDGES
@@ -172,7 +191,7 @@ describe("treeMapGenerator", () => {
 
 	describe("calculateAreaValue", () => {
 		it("should return 0 if node has children, not blacklisted and not only visible in comparison map", () => {
-			const actual = SquarifiedLayoutGenerator.getAreaValue(codeMapNode, state)
+			const actual = SquarifiedLayoutGenerator.calculateAreaValue(codeMapNode, state, 400)
 
 			expect(actual).toBe(0)
 		})
