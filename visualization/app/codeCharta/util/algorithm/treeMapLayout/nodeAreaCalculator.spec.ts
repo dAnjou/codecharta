@@ -1,16 +1,16 @@
 import { klona } from "klona"
 import {
 	STATE,
-	VALID_NODE_NESTED_FOLDER_ONE_LEAF,
-	VALID_NODE_NESTED_FOLDER_TWO_LEAVES,
 	VALID_NODE_NESTED_FOLDER_LEAVES_DIFFERENT_NEST_LEVELS,
-	VALID_NODE_NESTED_FOLDER_LEAVES_HUGE
+	VALID_NODE_NESTED_FOLDER_LEAVES_HUGE,
+	VALID_NODE_NESTED_FOLDER_ONE_LEAF,
+	VALID_NODE_NESTED_FOLDER_TWO_LEAVES
 } from "../../dataMocks"
 import { hierarchy } from "d3-hierarchy"
 import { calculateTotalNodeArea } from "./nodeAreaCalculator"
 import { getChildrenAreaValues, getSmallestValueOrSmallestDifference } from "./modifiedTreeMapHelperFunctions"
 import { calculatePaddingBasedOnBuildingArea } from "./paddingCalculator"
-import { getBuildingAreasWithProportionalPadding } from "./treeMapGenerator"
+import { getBuildingAreas } from "./treeMapGenerator"
 
 describe("nodeAreaCalculator", () => {
 	describe("calculateTotalNodeArea", () => {
@@ -34,11 +34,7 @@ describe("nodeAreaCalculator", () => {
 
 			expect(padding).toStrictEqual(10)
 
-			const metricBuildingAreasIncludingPadding = getBuildingAreasWithProportionalPadding(
-				childrenAreaValues,
-				smallestDelta,
-				MIN_BUILDING_AREA
-			)
+			const metricBuildingAreasIncludingPadding = getBuildingAreas(childrenAreaValues, smallestDelta, MIN_BUILDING_AREA)
 
 			expect(metricBuildingAreasIncludingPadding).toStrictEqual([100])
 
@@ -64,11 +60,7 @@ describe("nodeAreaCalculator", () => {
 
 			expect(padding).toStrictEqual(5)
 
-			const metricBuildingAreasIncludingPadding = getBuildingAreasWithProportionalPadding(
-				childrenAreaValues,
-				smallestDelta,
-				MIN_BUILDING_AREA
-			)
+			const metricBuildingAreasIncludingPadding = getBuildingAreas(childrenAreaValues, smallestDelta, MIN_BUILDING_AREA)
 
 			const { rootWidth, rootHeight } = calculateTotalNodeArea(metricBuildingAreasIncludingPadding, hierarchyMap, padding, state)
 
@@ -86,11 +78,7 @@ describe("nodeAreaCalculator", () => {
 
 			padding = calculatePaddingBasedOnBuildingArea(childrenAreaValues, smallestDelta, MIN_BUILDING_AREA, padding)
 
-			const metricBuildingAreasIncludingPadding = getBuildingAreasWithProportionalPadding(
-				childrenAreaValues,
-				smallestDelta,
-				MIN_BUILDING_AREA
-			)
+			const metricBuildingAreasIncludingPadding = getBuildingAreas(childrenAreaValues, smallestDelta, MIN_BUILDING_AREA)
 
 			const { rootWidth, rootHeight } = calculateTotalNodeArea(metricBuildingAreasIncludingPadding, hierarchyMap, padding, state)
 
@@ -108,11 +96,7 @@ describe("nodeAreaCalculator", () => {
 
 			padding = calculatePaddingBasedOnBuildingArea(childrenAreaValues, smallestDelta, MIN_BUILDING_AREA, padding)
 
-			const metricBuildingAreasIncludingPadding = getBuildingAreasWithProportionalPadding(
-				childrenAreaValues,
-				smallestDelta,
-				MIN_BUILDING_AREA
-			)
+			const metricBuildingAreasIncludingPadding = getBuildingAreas(childrenAreaValues, smallestDelta, MIN_BUILDING_AREA)
 
 			const { rootWidth, rootHeight } = calculateTotalNodeArea(metricBuildingAreasIncludingPadding, hierarchyMap, padding, state)
 

@@ -45,15 +45,11 @@ export function calculateTotalNodeArea(buildingAreas: number[], hierarchyNode: H
 	 * Step 3:
 	 */
 	for (const [nodeKey, nodeValue] of nodeKeyMap) {
-		nodeAreaMap[nodeKey] = getAreaValue(nodeValue.data, state)
-
-		if (nodeValue.data.type === "Folder") {
-			const totalChildrenArea = nodeValue.data.children.reduce((sum, node) => getAreaValue(node, state) + sum, 0)
-
-			if (totalChildrenArea !== 0) {
-				nodeAreaMap[nodeKey] = totalChildrenArea
-			}
-		}
+		const totalChildrenArea =
+			nodeValue.data.type === "Folder"
+				? nodeValue.data.children.reduce((sum, node) => getAreaValue(node, state) + sum, 0)
+				: getAreaValue(nodeValue.data, state)
+		nodeAreaMap.set(nodeKey, totalChildrenArea)
 	}
 
 	/**
@@ -66,10 +62,11 @@ export function calculateTotalNodeArea(buildingAreas: number[], hierarchyNode: H
 	 */
 	for (const nodePath of paths) {
 		if (nodeKeyMap.get(nodePath)?.data.type === "Folder") {
+			// TODO: skip root folder
 			const parent = getParent(nodeKeyMap, nodePath)
 			const parentPath = parent?.data.path
 
-			nodeAreaMap[parentPath] = nodeAreaMap[parentPath] + nodeAreaMap[nodePath]
+			nodeAreaMap.set(parentPath, nodeAreaMap.get(parentPath) + nodeAreaMap.get(nodePath))
 		}
 	}
 
@@ -77,17 +74,18 @@ export function calculateTotalNodeArea(buildingAreas: number[], hierarchyNode: H
 	 * Step 6:
 	 */
 
+	// TODO Fix padding, imagine the case you have a folder that contains subfolders and leafs/nodes
 	for (const nodePath of paths) {
 		const parent = getParent(nodeKeyMap, nodePath)
 		const parentPath = parent?.data.path
 		if (nodeKeyMap.get(nodePath)?.data.type === "File") {
-			if (nodeAreaMap[parentPath] > 0) {
-				const parentArea = addPaddingToArea(nodeAreaMap[parentPath], padding)
-				const proportion = parentArea / nodeAreaMap[parentPath]
-				nodeAreaMap[nodePath] = Math.ceil(nodeAreaMap[nodePath] * proportion)
+			if (nodeAreaMap.get(parentPath) > 0) {
+				const parentArea = addPaddingToArea(nodeAreaMap.get(parentPath), padding)
+				const proportion = parentArea / nodeAreaMap.get(parentPath)
+				nodeAreaMap.set(nodePath, nodeAreaMap.get(nodePath) * proportion)
 			}
 		} else {
-			nodeAreaMap[nodePath] = 0
+			nodeAreaMap.set(nodePath, 0)
 		}
 	}
 
@@ -95,7 +93,7 @@ export function calculateTotalNodeArea(buildingAreas: number[], hierarchyNode: H
 	 * Step 7:
 	 */
 	hierarchyNode.sum(node => {
-		return nodeAreaMap[node.path]
+		return nodeAreaMap.get(node.path)
 	})
 
 	/**
@@ -153,7 +151,7 @@ export function calculateTotalNodeArea(buildingAreas: number[], hierarchyNode: H
 	const rootWidth = Math.ceil(rootSide)
 
 	const metricSum = hierarchyNode.sum(node => {
-		return nodeAreaMap[node.path] * factor
+		return nodeAreaMap.get(node.path) * factor
 	})
 
 	//TODO: Implement invert area here
@@ -162,5 +160,5 @@ export function calculateTotalNodeArea(buildingAreas: number[], hierarchyNode: H
 }
 
 function addPaddingToArea(area: number, padding: number) {
-	return Math.ceil((Math.sqrt(area) + padding) ** 2)
+	return (Math.sqrt(area) + padding) ** 2
 }
