@@ -7,9 +7,42 @@ and this project adheres to [Semantic Versioning](http://semver.org/)
 
 ## [unreleased] (Added 🚀 | Changed | Removed 🗑 | Fixed 🐞 | Chore 👨‍💻 👩‍💻)
 
+## [1.113.0] - 2022-12-15
+
+### Changed
+
+-   The Custom Views Feature is now also available outside the Experimental Feature Mode [#3079](https://github.com/MaibornWolff/codecharta/pull/3076) </br>
+    ![image](https://user-images.githubusercontent.com/72517530/204557970-0ba31f3b-5209-4707-a2d0-55cc45509f8a.png)
+-   Please note that the functionality of downloading cc.json maps will no longer be supported from April 2023. Instead, use the Custom View feature to create and share configurations for different views of your map. [#3079](https://github.com/MaibornWolff/codecharta/pull/3076)
+-   Change tooltips in the legend to show the metric description [#3162](https://github.com/MaibornWolff/codecharta/pull/3162) <br/>
+    ![image](https://user-images.githubusercontent.com/27358421/205251507-100b1e1a-d86e-44f3-89cf-f32bf295aabd.png)
+
+### Chore 👨‍💻 👩‍💻
+
+-   Improve metric titles by loading them from cc.json [#3162](https://github.com/MaibornWolff/codecharta/pull/3162)
+-   Add attribute descriptors to SoureCodeParser [#3166](https://github.com/MaibornWolff/codecharta/pull/3166)
+
+## [1.112.1] - 2022-12-01
+
+### Fixed 🐞
+
+-   Reverted PR [#3077](https://github.com/MaibornWolff/codecharta/pull/3077) that introduced a rendering bug, where buildings sizes were not proportional to their area value [#3159](https://github.com/MaibornWolff/codecharta/pull/3159)
+
+### Chore 👨‍💻 👩‍💻
+
+-   Add attribute descriptors to SonarImporter [#3149](https://github.com/MaibornWolff/codecharta/pull/3149)
+-   Add title field to attribute descriptors [#3158](https://github.com/MaibornWolff/codecharta/pull/3158)
+
+## [1.112.0] - 2022-11-25
+
 ### Added 🚀
 
 -   New calculation algorithm for treeMap that accounts for paddings and floor labels [#3077](https://github.com/MaibornWolff/codecharta/pull/3077)
+
+### Fixed 🐞
+
+-   Fix ribbon-bar shadow moving down when search is expanded [#3138](https://github.com/MaibornWolff/codecharta/pull/3138)
+-   Fix loading errors of maps containing no programming-language-info [#3144](https://github.com/MaibornWolff/codecharta/pull/3144)
 
 ### Chore 👨‍💻 👩‍💻
 
