@@ -178,7 +178,13 @@ function getSquarifiedTreeMap(map: CodeMapNode, state: State): SquarifiedTreeMap
 
 	const metricBuildingAreasIncludingPadding = getBuildingAreas(childrenAreaValues, smallestDelta, MIN_BUILDING_AREA)
 
-	const { rootWidth, rootHeight, metricSum } = calculateTotalNodeArea(metricBuildingAreasIncludingPadding, hierarchyNode, padding, state)
+	const { rootWidth, rootHeight, metricSum } = calculateTotalNodeArea(
+		metricBuildingAreasIncludingPadding,
+		enableFloorLabels,
+		hierarchyNode,
+		padding,
+		state
+	)
 
 	const width = rootWidth
 	const height = rootHeight

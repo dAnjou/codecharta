@@ -13,7 +13,13 @@ import { isLeaf } from "../../codeMapHelper"
 
 const BIG_MAP = 40_000
 
-export function calculateTotalNodeArea(buildingAreas: number[], hierarchyNode: HierarchyNode<CodeMapNode>, padding: number, state: State) {
+export function calculateTotalNodeArea(
+	buildingAreas: number[],
+	enableFloorLabels: boolean,
+	hierarchyNode: HierarchyNode<CodeMapNode>,
+	padding: number,
+	state: State
+) {
 	/**
 	 * Step 1:
 	 */
@@ -100,12 +106,11 @@ export function calculateTotalNodeArea(buildingAreas: number[], hierarchyNode: H
 	 * Step 8:
 	 */
 	let factor = 1
-
 	for (const node of hierarchyNode) {
 		if (!isLeaf(node.data) && node.value !== undefined) {
 			const folderAreaValue = node.value
 
-			if (node.depth === 0) {
+			if (enableFloorLabels && node.depth === 0) {
 				if (DEFAULT_PADDING_FLOOR_LABEL_FROM_LEVEL_0 > Math.sqrt(folderAreaValue)) {
 					factor = DEFAULT_PADDING_FLOOR_LABEL_FROM_LEVEL_0 / Math.sqrt(folderAreaValue)
 				}
@@ -115,7 +120,12 @@ export function calculateTotalNodeArea(buildingAreas: number[], hierarchyNode: H
 					Math.sqrt(folderAreaValue) * PADDING_APPROX_FOR_DEPTH_ZERO
 				)
 			}
-			if (node.depth >= 1 && node.depth <= 2 && folderAreaValue / node.parent.value > FOLDER_LABEL_TOO_SMALL_PARENT) {
+			if (
+				enableFloorLabels &&
+				node.depth >= 1 &&
+				node.depth <= 2 &&
+				folderAreaValue / node.parent.value > FOLDER_LABEL_TOO_SMALL_PARENT
+			) {
 				if (DEFAULT_PADDING_FLOOR_LABEL_FROM_LEVEL_1 > Math.sqrt(folderAreaValue)) {
 					factor = Math.max(factor, DEFAULT_PADDING_FLOOR_LABEL_FROM_LEVEL_1 / Math.sqrt(folderAreaValue))
 				}
@@ -125,7 +135,6 @@ export function calculateTotalNodeArea(buildingAreas: number[], hierarchyNode: H
 					Math.sqrt(folderAreaValue) * PADDING_APPROX_FOR_DEPTH_ONE
 				)
 			}
-
 			totalNodeArea += (folderAreaValue + folderAreaValue * 0.001 + padding * 2) ** 2 - folderAreaValue ** 2
 		}
 	}

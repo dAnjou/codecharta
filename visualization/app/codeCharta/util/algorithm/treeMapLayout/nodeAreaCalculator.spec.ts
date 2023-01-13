@@ -17,6 +17,7 @@ describe("nodeAreaCalculator", () => {
 		const state = STATE
 		let padding = 10
 		const MIN_BUILDING_AREA = 100
+		const enableFloorLabels = true
 
 		it("should calculate total node area for nested folders'", () => {
 			const map = klona(VALID_NODE_NESTED_FOLDER_ONE_LEAF)
@@ -38,7 +39,13 @@ describe("nodeAreaCalculator", () => {
 
 			expect(metricBuildingAreasIncludingPadding).toStrictEqual([100])
 
-			const { rootWidth, rootHeight } = calculateTotalNodeArea(metricBuildingAreasIncludingPadding, hierarchyMap, padding, state)
+			const { rootWidth, rootHeight } = calculateTotalNodeArea(
+				metricBuildingAreasIncludingPadding,
+				enableFloorLabels,
+				hierarchyMap,
+				padding,
+				state
+			)
 
 			expect(rootHeight).toEqual(1374)
 			expect(rootWidth).toEqual(1374)
@@ -62,7 +69,13 @@ describe("nodeAreaCalculator", () => {
 
 			const metricBuildingAreasIncludingPadding = getBuildingAreas(childrenAreaValues, smallestDelta, MIN_BUILDING_AREA)
 
-			const { rootWidth, rootHeight } = calculateTotalNodeArea(metricBuildingAreasIncludingPadding, hierarchyMap, padding, state)
+			const { rootWidth, rootHeight } = calculateTotalNodeArea(
+				metricBuildingAreasIncludingPadding,
+				enableFloorLabels,
+				hierarchyMap,
+				padding,
+				state
+			)
 
 			expect(rootHeight).toEqual(814)
 			expect(rootWidth).toEqual(814)
@@ -80,7 +93,13 @@ describe("nodeAreaCalculator", () => {
 
 			const metricBuildingAreasIncludingPadding = getBuildingAreas(childrenAreaValues, smallestDelta, MIN_BUILDING_AREA)
 
-			const { rootWidth, rootHeight } = calculateTotalNodeArea(metricBuildingAreasIncludingPadding, hierarchyMap, padding, state)
+			const { rootWidth, rootHeight } = calculateTotalNodeArea(
+				metricBuildingAreasIncludingPadding,
+				enableFloorLabels,
+				hierarchyMap,
+				padding,
+				state
+			)
 
 			expect(rootHeight).toEqual(553)
 			expect(rootWidth).toEqual(553)
@@ -98,7 +117,13 @@ describe("nodeAreaCalculator", () => {
 
 			const metricBuildingAreasIncludingPadding = getBuildingAreas(childrenAreaValues, smallestDelta, MIN_BUILDING_AREA)
 
-			const { rootWidth, rootHeight } = calculateTotalNodeArea(metricBuildingAreasIncludingPadding, hierarchyMap, padding, state)
+			const { rootWidth, rootHeight } = calculateTotalNodeArea(
+				metricBuildingAreasIncludingPadding,
+				enableFloorLabels,
+				hierarchyMap,
+				padding,
+				state
+			)
 
 			expect(rootHeight).toEqual(40_000)
 			expect(rootWidth).toEqual(40_000)
