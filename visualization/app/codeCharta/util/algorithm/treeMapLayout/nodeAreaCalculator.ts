@@ -84,13 +84,25 @@ export function calculateTotalNodeArea(
 	for (const nodePath of paths) {
 		const parent = getParent(nodeKeyMap, nodePath)
 		const parentPath = parent?.data.path
-		if (nodeKeyMap.get(nodePath)?.data.type === "File") {
-			if (nodeAreaMap.get(parentPath) > 0) {
-				const parentArea = addPaddingToArea(nodeAreaMap.get(parentPath), padding)
-				const proportion = parentArea / nodeAreaMap.get(parentPath)
-				nodeAreaMap.set(nodePath, nodeAreaMap.get(nodePath) * proportion)
-			}
-		} else {
+		if (nodeKeyMap.get(nodePath)?.data.type === "File" && nodeAreaMap.get(parentPath) > 0) {
+			const parentProportion = nodeAreaMap.get("/root") > 0 ? nodeAreaMap.get(parentPath) / nodeAreaMap.get("/root") : 1
+
+			const parentArea = addPaddingToArea(nodeAreaMap.get(parentPath), padding)
+
+			const childFolderArea = nodeKeyMap
+				.get(parentPath)
+				?.children.map(child => child.data)
+				.filter(data => data.type === "Folder")
+				.map(entry => nodeAreaMap.get(entry.path))
+				.reduce((entry, sum) => sum + entry, 0)
+
+			const proportion = (parentArea - addPaddingToArea(childFolderArea, padding)) / (nodeAreaMap.get(parentPath) - childFolderArea)
+			nodeAreaMap.set(nodePath, nodeAreaMap.get(nodePath) * proportion * parentProportion)
+		}
+	}
+
+	for (const nodePath of paths) {
+		if (nodeKeyMap.get(nodePath)?.data.type === "Folder") {
 			nodeAreaMap.set(nodePath, 0)
 		}
 	}
