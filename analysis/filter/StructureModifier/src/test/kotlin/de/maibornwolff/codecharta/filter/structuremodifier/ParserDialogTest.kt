@@ -14,7 +14,7 @@ import kotlin.io.path.Path
 
 class ParserDialogTest {
     val absolutePath = Paths.get("").toAbsolutePath().toString()
-    val resourceFolder = Path( absolutePath,"/src/test/resources/")
+    val resourceFolder = Path(absolutePath, "/src/test/resources/")
     val sampleProjectPath = resourceFolder.resolve("sample_project.cc.json")
 
     @Test
@@ -24,7 +24,8 @@ class ParserDialogTest {
 
         testSession { terminal ->
             // when
-            val parserArguments = myCollectParserArgs(
+            val parserArguments =
+            myCollectParserArgs(
                 fileCallback = {
                     terminal.type(sampleProjectPath.toString())
                     terminal.press(Keys.ENTER)
@@ -36,7 +37,7 @@ class ParserDialogTest {
                 printCallback = {
                     terminal.type(printLevels.toString())
                     terminal.press(Keys.ENTER)
-                }
+                },
             )
 
             // then
@@ -59,7 +60,8 @@ class ParserDialogTest {
         val outputFileName = "output"
 
         testSession { terminal ->
-            val parserArguments = myCollectParserArgs(
+            val parserArguments =
+            myCollectParserArgs(
                 fileCallback = {
                     terminal.type(sampleProjectPath.toString())
                     terminal.press(Keys.ENTER)
@@ -75,7 +77,7 @@ class ParserDialogTest {
                 outFileCallback = {
                     terminal.type(outputFileName)
                     terminal.press(Keys.ENTER)
-                }
+                },
             )
 
             val commandLine = CommandLine(StructureModifier())
@@ -101,7 +103,8 @@ class ParserDialogTest {
 
         testSession { terminal ->
             // when
-            val parserArguments = myCollectParserArgs(
+            val parserArguments =
+            myCollectParserArgs(
                 fileCallback = {
                     terminal.type(sampleProjectPath.toString())
                     terminal.press(Keys.ENTER)
@@ -122,7 +125,7 @@ class ParserDialogTest {
                 outFileCallback = {
                     terminal.type(outputFileName)
                     terminal.press(Keys.ENTER)
-                }
+                },
             )
             val commandLine = CommandLine(StructureModifier())
             val parseResult = commandLine.parseArgs(*parserArguments.toTypedArray())
@@ -147,7 +150,8 @@ class ParserDialogTest {
 
         testSession { terminal ->
             // when
-            val parserArguments = myCollectParserArgs(
+            val parserArguments =
+            myCollectParserArgs(
                 fileCallback = {
                     terminal.type(sampleProjectPath.toString())
                     terminal.press(Keys.ENTER)
@@ -165,7 +169,7 @@ class ParserDialogTest {
                 outFileCallback = {
                     terminal.type(outputFileName)
                     terminal.press(Keys.ENTER)
-                }
+                },
             )
             val commandLine = CommandLine(StructureModifier())
             val parseResult = commandLine.parseArgs(*parserArguments.toTypedArray())
@@ -190,7 +194,8 @@ class ParserDialogTest {
 
         testSession { terminal ->
             // when
-            val parserArguments = myCollectParserArgs(
+            val parserArguments =
+            myCollectParserArgs(
                 fileCallback = {
                     terminal.type(invalidInputFileName)
                     terminal.press(Keys.ENTER)
@@ -211,7 +216,7 @@ class ParserDialogTest {
                 outFileCallback = {
                     terminal.type(outputFileName)
                     terminal.press(Keys.ENTER)
-                }
+                },
             )
             val commandLine = CommandLine(StructureModifier())
             val parseResult = commandLine.parseArgs(*parserArguments.toTypedArray())
